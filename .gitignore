@@ -1,0 +1,31 @@
+# Compiled
+__pycache__/
+
+# Environments
+.env
+.venv
+env/
+venv/
+
+# SLURM
+slurm-*.out
+
+# Distribution
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
