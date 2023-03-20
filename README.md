@@ -10,7 +10,7 @@ HORNET: Holistic RNA Structure Determination by Unsupervised Learning and Deep N
 
 ## Step 1 - Dynamic Fitting
 
-See [here](DynamicFitting/README.md) for a more detailed explanation of how to perform the Dynamic Fitting calculations.
+See [here](https://github.com/PNAI-CSB-NCI-NIH/HORNET/tree/main/DynamicFitting/README.md) for a more detailed explanation of how to perform the Dynamic Fitting calculations.
 
 ## Steps 2-4
 
@@ -58,7 +58,7 @@ conda activate hornet1
 
 #### Step 2 - Input Preparation
 
-The scripts for preparing the input data for both UML and DNN are located in [UML](UML) folder. The first step is copying the output files (.ts) from the Dynamic Fitting folder into the UML/data/ folder as a txt file in which the name carries the kappa (the weighting factor for the AFM pseudo-potential) value:
+The scripts for preparing the input data for both UML and DNN are located in [UML](https://github.com/PNAI-CSB-NCI-NIH/HORNET/tree/main/UML) folder. The first step is copying the output files (.ts) from the Dynamic Fitting folder into the UML/data/ folder as a txt file in which the name carries the kappa (the weighting factor for the AFM pseudo-potential) value:
 
 ```bash
 cp <Dynamic-Fitting-Output>/<kappa>/<file-name.ts> <HORNET-PATH>/UML/data/en_allk<kappa>.txt
@@ -66,7 +66,7 @@ cp <Dynamic-Fitting-Output>/<kappa>/<file-name.ts> <HORNET-PATH>/UML/data/en_all
 
 The kappa values used for AFM in the calculation are embedded in the name of the file and they will be extracted when loading the files.
 
-The next step is to run the [input_prep.py](UML/input_prep.py) script, which collects all of en_allk* files, transform and merge them, followed by saving them in an output file called "Full_Trajectory.csv". The numbers of base-pairs and base-stacking per trajectory are required for normalizations with a specific kappa value. This information can be taken into the script by simply creating a 3 column comma separated file (frame, base_pair, base_stack) per trajectory (see an example [link]). The name of this file should be `bases_k<kappa>.txt` and be placed in the same directory as the copied `en_allk<kappa>.txt` files are, where `<kappa>` in all examples should be replaced by the kappa values used in the calculation, eg., bases_k2.txt and en_allk2.txt if the kappa value was 2. 
+The next step is to run the [input_prep.py](https://github.com/PNAI-CSB-NCI-NIH/HORNET/tree/main/UML/input_prep.py) script, which collects all of en_allk* files, transform and merge them, followed by saving them in an output file called "Full_Trajectory.csv". The numbers of base-pairs and base-stacking per trajectory are required for normalizations with a specific kappa value. This information can be taken into the script by simply creating a 3 column comma separated file (frame, base_pair, base_stack) per trajectory (see an example [here](https://github.com/PNAI-CSB-NCI-NIH/HORNET/tree/main/)). The name of this file should be `bases_k<kappa>.txt` and be placed in the same directory as the copied `en_allk<kappa>.txt` files are, where `<kappa>` in all examples should be replaced by the kappa values used in the calculation, eg., bases_k2.txt and en_allk2.txt if the kappa value was 2. 
 
 For the best normalization and prediction, one should use the number of base-pair and base-stacking of the specific frame, or at least a smoothed value for each ~50 sequential frames. However, it is possible for the user to estimate an average value for all of the trajectories and pass this as a single constant value argument, at the cost of reducing accuracy in the RMSD predictions using DNN.
 
@@ -103,7 +103,7 @@ The output file "Full_Trajectory.csv" will be created within the `<input-directo
 
 #### Step 3 - Unsupervised Learning Cohort Selection
 
-To select top cohort structures using unsupervised learning, one just needs to run the [uml.py](UML/uml.py) script, by using:
+To select top cohort structures using unsupervised learning, one just needs to run the [uml.py](https://github.com/PNAI-CSB-NCI-NIH/HORNET/tree/main/UML/uml.py) script, by using:
 
 ```bash
 python uml.py <input-directory>/<Full-Trajectory-File>
@@ -122,9 +122,11 @@ The output files from this script will be, within the data folder:
 
 #### Step 4 - Deep Learning Predictions
 
+The scripts for training models and performing predictions are located at [DNN](https://github.com/PNAI-CSB-NCI-NIH/HORNET/tree/main/DNN) folder. 
+
 ##### Predictions
 
-To predict the RMSD (score) of structures, either from a Full_Trajectory, Filtered_Data, Select_Cluster or Final_Cohort, one needs to run the [predic.py](DNN/predict.py) script:
+To predict the RMSD (score) of structures, either from a Full_Trajectory, Filtered_Data, Select_Cluster or Final_Cohort, one needs to run the [predict.py](https://github.com/PNAI-CSB-NCI-NIH/HORNET/tree/main/DNN/predict.py) script:
 
 ```bash
 python predict.py -o <output-directory> -d <dataset> -n <number-of-residues>
@@ -155,7 +157,7 @@ IMPORTANT: All datasets within DNN/data have 268 ncl, this is what should be use
 
 ##### Training
 
-If one wants to train a model with other data, one just needs to run the [train.py](DNN/train.py) script, as:
+If one wants to train a model with other data, one just needs to run the [train.py](https://github.com/PNAI-CSB-NCI-NIH/HORNET/tree/main/DNN/train.py) script, as:
 
 ```bash
 python train.py -o <output-directory> -d <dataset> -n <number-of-residues>
