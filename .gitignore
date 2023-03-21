@@ -1,6 +1,9 @@
 # Compiled
 __pycache__/
 
+# Temporary
+.tmp/
+
 # Environments
 .env
 .venv
