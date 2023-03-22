@@ -117,10 +117,10 @@ def filter_data(df):
         df : DataFrame
             Filtered dataset
     """
-    df = df[df['kapa']  <   50]
-    df = df[df['frame'] > 2000]
-    df = df[df['etot']  <    0]
-    df = df[df['go']    <    0]
+    df = df[df['kapa']  < 50]
+    df = df[df['frame'] > 20]
+    df = df[df['etot']  <  0]
+    df = df[df['go']    <  0]
     return df
 
 def create_features(df):
