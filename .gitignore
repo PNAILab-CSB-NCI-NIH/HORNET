@@ -10,6 +10,9 @@ __pycache__/
 env/
 venv/
 
+# Adds
+.DS_Store
+
 # SLURM
 slurm-*.out
 

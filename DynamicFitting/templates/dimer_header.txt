@@ -1,0 +1,156 @@
+**** Set paths, input and output filenames, and output data formats
+<<<< filenames
+** Directory where output data are saved
+path = {path}/output
+** Output file names up to the suffix
+filename = out_name
+** Types of output files
+OUTPUT pdb psf dcd rst
+** Directory where the parameter files are prepared
+path_para = {cafemol_path}/para
+** Directory where the native (reference) structures are prepared
+path_pdb = {data_path}
+** Directory where the initial structures are prepared
+path_ini = {data_path}
+** Directory where the native (reference) information are prepared
+path_natinfo = {data_path}
+>>>>
+
+**** Set the overall job
+<<<< job_cntl
+** Constant temperature simulation 2, simulated annealing 3
+i_run_mode = 2
+** Langevin dynamics
+i_simulate_type = 1
+** Configuration given in the input with the CafeMol (CG) style
+i_initial_state = 6
+** Random velocity drawn from the Maxwell-Boltzmann distribution (default)
+i_initial_velo = 0
+>>>>
+
+<<<< annealing
+tempk_init = 400.0
+tempk_last = 300.0
+** number of temperature steps/time windows
+n_time_change = 100
+>>>>
+
+**** Define molecular units (nearly same as chains) and states of simulated molecular system
+<<<< unit_and_state
+** Sequence information from PDB files
+i_seq_read_style = 4
+** Native-structure information used for Go model or its relatives from "native_info" files
+i_go_native_read_style = 2
+** Units and states of simulated system together with their molecular type
+1-2    rna    input_cg.pdb
+>>>>
+
+**** Native (or reference) structure information for Go model and its relatives
+<<<< native_info_sim1
+NINFO(all/all) input.ninfo
+>>>>
+
+**** Specify the initial structures
+<<<< initial_struct
+** Specify the initial structures of all units
+1-2 input_cg.pdb
+>>>>
+
+**** Set the energy function
+<<<< energy_function
+LOCAL(1-2)      L_GO
+NLOCAL(1-2/1-2)   GO EXV ELE PAIR_RNA
+i_triple_angle_term = 0
+i_use_atom_protein = 0
+i_use_atom_dna = 0
+i_residue_exv_radii = 0
+i_coef_from_ninfo = 1
+>>>>
+
+<<<< electrostatic
+cutoff_ele = 20.0
+ionic_strength = 0.015
+diele_water = 78.0
+i_diele = 0
+>>>>
+
+**** Define type of MD simualtion
+<<<< md_information
+** The number of steps of simulation
+n_step_sim = 1
+** The number of MD steps
+n_tstep(1) = 1000000
+** Time length in each MD step
+tstep_size = 0.1
+** Time steps for saving structural information
+n_step_save = 10000
+** Time steps for saving restart files
+n_step_rst = 1000000
+** Time steps for saving neighbor list
+n_step_neighbor = 50
+** Temperature used in simulation
+tempk = 300.0
+** Seed of random numbers
+n_seed = 81052434
+** Do not fix the center of mass of the system at the origin
+i_com_zeroing = 0
+** Do not prohibit overall translation and rotation of the entire molecular system
+i_no_trans_rot = 0
+** Do not move the center of mass of initial strcutre to the origin (default)
+i_com_zeroing_ini = 0
+** Do not re-define some default parameters (default)
+i_redef_para = 0
+** Do not delete some interactions in a particular range (default)
+i_del_int = 0
+** Perform a simulation on a stage
+i_stage = 1
+** Perform flexible fitting to an AFM image
+i_afm_fitting = 1
+>>>>
+
+**** Group for adding a stage potential
+<<<< group
+** All particles
+GROUP(1) (1-1258)
+>>>>
+
+**** Add a stage potential, which is Lennard-Jones type
+<<<< stage
+** Group of particles on which stage protential will affect
+group_id = 1
+** Stage position along the z axis
+height = 0.0
+** Cutoff distance relative to sigma parameter, which is the same values as EVX
+cutoff_ratio = 2.5
+** Epsilon parameter
+eps = 1.2
+** Uniform distance offset between particles and the stage
+distance_offset = 2.0
+>>>>
+
+**** Perform flexible fitting to an AFM image
+<<<< afm_fitting
+** Strength of the potential; k=kappa*N*kB*T=1.00*1258*0.001987*300
+k       =  749.8938
+** Softmax accuracy
+beta    =  1.0
+** Gaussian width along x axis
+sigma_x =  2.0
+** Gaussian width along y axis
+sigma_y =  2.0
+** Stage position
+z0      =  0.0
+** Cutoff for Gaussian
+cutoff_sigma =  5.0
+
+** Size of an AFM image [pixels]
+n_x = 30
+n_y = 24
+** Size of a pixel [Angstrom]
+pixel_size_x = 7.0
+pixel_size_y = 7.0
+
+** Group of particles on which AFM interaction affect
+group_id = 1
+
+** Informaion on AFM image: heights of all pixels

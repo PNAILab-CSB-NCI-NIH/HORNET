@@ -1,0 +1,65 @@
+##Helper scripts
+
+1.	Write pdb model from dcd file 
+
+	. Create a folder and add all dcd files inside named as respectively the kappa value used for that trajectory. For example: k2.dcd for trajectory with kappa=2.
+   Usage:
+         python Writepdb_Alltraj.py  
+
+Inputs: 
+	path_traj      the full path to the file with all the trajectory information (Full_Trajectory.cs) 
+	dcd_traj       the full path to the folder with dcd files 
+	ref            the full path and name of the CG topology model. (This file could be your initial model used to run dynamic fitting)
+
+
+2.	Coarse-grained (CG) model to all atom conversion and refinement
+	(i)	First is required to create an optimum all atom covalent geometry file, this can be obtained using: 
+
+		pyXplor genIni.py 
+
+	Inputs: 
+		genIni.py received a pdb all atom model file named as rna_ini-allatom.pdb
+
+	(ii)	Carry out the CG to all atom conversion and xplor refinement
+
+   	Usage:
+        	 bash script_path/cg2aa/ submit_toAllAtom.sh cgRNA_list_file
+
+   	Inputs:
+         	Path_       		   change scriptFile to the full path of toAllAtom.py into submit_toAllAtom.sh (line 10)
+		rna_ini-allatom_good.pdb   good covalent geometry all atom structure  the full path and file name need to be specified into submit_toAllAtom.sh (line 20)
+		model_file.bpl      	   base pair list file, example at script_path/cg2aa/ model_file.bp. The full path and file name need to be specified into submit_toAllAtom.sh (line 22)
+		cgRNA_list_file   	   file containging full path of a list of cg PDBs, example at script_path/cg2aa / pdb_list.txt
+        CG to all atom conversion and Xplor refinement is iterated for each PDB.
+
+3.	Convert all atom model to Cafemol format 
+   Usage:
+         bash script_path/cg2aa/ format_pdb_xplor.sh path_to_pdb_folder 
+Inputs:
+      path_to_pdb_folder      path to the folder with desire all atom pdb to be convert to Cafemol reading format 
+
+4.	Calculate the base pair and base stack number for pdb models 
+
+	Usage:
+         	python bases_calc.py
+	Inputs:
+		path1           add path to the folder where all .pdb files are located  and correct  format to be read by cafemol (line 14) 
+		cafe            add path to the folder bases_calc (line 15)      
+		cafemol.exe 	add path to cafemol.exe (line 35)
+
+
+5.	Create a smooth data set to base pair and base stack values from a sample to the full trajectory 
+	Usage:
+         	python smooth.py
+	Inputs:
+		path1        add path to the folder where all .pdb files are located  and correct  format to be read by cafemol (line 14) 
+		cafe         add path to the folder bases_calc (line 15)      
+
+
+
+6.	Fix covalent geometry and minimize the RNA structur, regularizes bond, angle and improper terms, not allowing significant motion of the P atoms.
+
+   Usage:
+           xplor script_path/Helper_scripts/regularize.py FILE.pdb > regularize.out
+           where you specify PDB file as FILE.pdb. The regularized structure is written to 
+           FILE.pdb.out

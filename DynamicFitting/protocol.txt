@@ -1,0 +1,104 @@
+########Run setup
+
+For help with syntax/usage:
+Simply run the script without any arguments,
+script_path is the path to top level scripts folder
+eg. bash script_path/calculation/make_cafeinput_monomer.sh
+
+#### Protocol for Running CafeMol
+First of all, make a project directory and cd to this directory
+If you are running for the first time, you have to generate the CG model, so proceed to step 1.
+If you already have the CG model of pdb and the ninfo file, proceed to step 2.
+
+
+1. All atom runs to create CG model and native info file
+
+	•       Warning: Please refine you structure in all atom using Xplor-NIH, before CG conversion
+	•	For monomer, copy the script_path/templates/monomer_ini folder to your project directory and cd to monomer_ini
+	•       For dimmer, copy the script_path/templates/dimer_ini folder to your project directory and cd to dimer_ini
+	•	Specify the necessary file path at the top of the input file
+	•	No AFM data needed for this step
+	•	The PDB file (all atom) works as is. No further processing needed
+	•	Only keep the last model from the output PDB file, which will be the input CG pdb file for afm run.
+	•	In case of dimer, introduce a TER word between two chain in the PDB for chain termination (cafemol is fussy about this).
+	•       Run Cafemol:  path/cafemol.exe input.inp
+
+2. AFM fitting run
+	•       Prepare the input AFM file based on afm surface (file with x, y and z coordinates cropped from the experimental AFM image using any desire package, for example: MountainsSPIP or Gwyddion). 
+	•	For monomer, Run: bash script_path/calculation/make_cafeinput_monomer.sh afm_file cg_pdb_file ninfo_file
+	•	For dimer, Run: bash script_path/calculation/make_cafeinput_dimer.sh afm_file cg_pdb_file ninfo_file
+
+Inputs:
+	afm_file -  is the afm data file in nanometer units
+        cg_pdb_file -  is the CG model of PDB obtained from all atom to cg calculation
+        ninfo_file - is native info file from all atom to cg conversion calculation, edit ninfo_file if needed (see Step 3)
+
+	•	Edit the input CafeMol file "input_cafe.inp" for md_steps, total atoms (look for GROUP(1)) and accordingly kappa, x/y pixel size and pixel numbers n_x, n_y.
+           	 If you want to run in simulated annealing mode, change i_run_mode to 3 and edit the section "annealing".
+           	 Please note: You do not have to set up any path or rename any PDB or ninfo file. This is set up by the script.
+	•	After the calculation is complete, check the output folder.
+
+
+Step 3. Edit the ninfo file to scale the force coefficients and add tertiary contacts (works for both monomer and dimer)
+
+	•	To only scale the force coefficients:
+		Run: python script_path/calculation/edit_ninfo_full.py scale_factor ninfo_file
+
+	•	To scale coefficients and add tertiary restraints
+		Run: python script_path/calculation/edit_ninfo_full.py scale_factor ninfo_file restraint_file cg_pdbfile
+
+            	The scale_factor is given as [x,x,x,x,x,x,x] representing [bond, angle, dihedral_1,dihedral_2,long_range, basepair, basestack]   "x" represents the multiplication factor, eg.[2,2,2,2,2,2,2].
+            	Templates for restraint file is given in the path: script_path/calculation/restraints_monomer.txt
+
+	•	To separately scale the coefficients for duplex and non duplex regions
+		Run: python script_path/calculation/scale_coef_duplex_ninfo.py scale_duplex scale_nonduplex ninfo_file basepair_file cg_pdbfile
+
+            	Both scale_duplex, and scale_nonduplex have the form [x,x,x,x,x,x,x] representing [bond, angle, dihedral_1, dihedral_2, long_range, basepair, basestack] and "x" represents the multiplication factor.
+            If all of the residues participating in bond, angle, long range, basepair and base stack 
+            belong to duplex, the duplex scaling factor is chosen. For dihedral, if both second and 
+            third residue belong to the duplex, the duplex scaling factor is applied.
+
+	•	To remove tertiary contacts between a group of residues and rest of the molecule
+		Run: python script_path/calculation/remove_contacts_ninfo.py  "A:1-20,B:30-40" ninfo_file cg_pdbfile
+
+            In above example we choose chain A with residues 1 thr 20, and chain B with residues 30 thr 40, the script will remove all long range restraints between each of these groups and rest of the molecule.
+
+
+A) Running multiple kappa runs and analysis to get the best kappa combinations
+
+1.	Setting up runs for multiple kappa values
+
+	•	Generate copies of a template folder to run cafemol runs at various kappa values
+
+	•	Copy the file setupNsubmit.sh to your top directory containing the template folder.
+   
+  	 Usage:
+            	bash script_path/calculation/setupNsubmit.sh template_directory kappa.txt
+
+    	Inputs:
+    		template_directory    template folder that has a complete set up for the cafemol run
+   		kappa.txt             file with column of kappa values
+
+    		example of kappa.txt is given at script_path/calculation/
+   		please remove any empty lines at the end of file in kappa.txt
+
+   
+B)  Running multiple runs with varying X,Y pixel scaling and Z scaling to find the best scaling parameters
+    
+1.	Setting up runs for multiple X,Y pixel scaling, Z scaling and kappa scaling.
+         Generate copies of a template folder to run cafemol runs at various XY and Z scale factors
+         and kappa values and submit all the runs
+
+   Usage: 
+      bash script_path/calculation/scan3D.sh '[x1,x2,dx] [z1,z2,dz] [k1,k2,dk] c templt_folder'
+
+   Inputs:
+      x1,x2,dx              x1,x2 lower and upper bound for scale factor for x and y direction, dx is the increment interval. Both x and y pixel coordinates are scaled by the same amount
+      z1,z2,dz              z1, z2 are lower and upper bound for scale factor for z direction, dz is the increment interval
+      k1,k2,dk              k1, k2 are lower and upper bound for kappa values, dk is the kappa increment interval
+      c                          cutoff value for z, z values are first scaled and any scaled value of z below cutoff is set to 0
+      templt_folder       template folder that has a complete set up for the cafemol run
+
+      This script also generates a file called scan3Dlist.txt that contain all combinations of xy and z scale factors and kappa values
+
+
