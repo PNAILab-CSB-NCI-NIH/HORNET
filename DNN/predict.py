@@ -19,6 +19,9 @@ import random, math, os, sys, json
 #from tensorflow.keras.optimizers import Adam
 #from keras.regularizers import l2
 
+import utils
+from importlib import reload
+reload(utils)
 from utils import *
 
 def predict(
@@ -67,6 +70,7 @@ def predict(
 
     print("\n - Evaluate Predictions")
     df['prediction'] = model.predict(X)
+    
     df.to_csv(f"{output_folder}/{dataset.split('/')[-1][:-4]}_prediction.csv",index=False)
     print(f"   Predictions stored at {output_folder}/{dataset.split('/')[-1][:-4]}_prediction.csv.")
 

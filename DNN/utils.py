@@ -18,21 +18,16 @@ from tensorflow.keras.optimizers import Adam
 from keras.regularizers import l2
 
 feat = [
-    'etot',
-    'cc7xEtot',
+    'etot', 'local', 'go', 'repul', 'stack', 'hbond', 'elect',
     'afmfit', 'afmcc',
-    'stack', 'hbond',
-    'repul',
-    'elect',
-    'local', 
-    'go'
+    'cc7xEtot'
 ]
 target = 'rmsd'
 all_feat = feat.copy()
 all_feat.append(target)
 
-etot_sum = ['local', 'repul', 'elect', 'stack', 'hbond', 'go']
-norm_by_size = ['local','repul','go','afmfit']
+etot_sum = ['local', 'go', 'repul', 'elect', 'stack', 'hbond']
+norm_by_size = ['local', 'go', 'repul', 'elect']
 norm_by_kappa = ['afmfit']
 norm_by_base_pairs = ['hbond']
 norm_by_base_stacking = ['stack']
@@ -122,17 +117,13 @@ def normalize(df,n_residues):
         df : DataFrame
             Normalized DataFrame
     """
-    # Normalize energies by their simulation weights
-    df['local'] = df['local']/5
-    df['stack'] = df['stack']/9
-    df['hbond'] = df['hbond']/9
 
     # Normalize energies by their dependencies
     n_beads = n_residues*3
     for j in norm_by_size:
         df[j] = df[j]/n_beads
     for j in norm_by_kappa:
-        df[j] = df[j]/df[KP]
+        df[j] = df[j]/(n_beads*df[KP])
     for j in norm_by_base_pairs:
         df[j] = df[j]/df[BP]
     for j in norm_by_base_stacking:
@@ -252,6 +243,7 @@ def standardize(df,mean=None,sigma=None):
     assert mean is not None and sigma is not None, "Problem in Mean or Sigma parameters."
     for i in feat:
         df[i] = (df[i]-mean[i])/sigma[i]
+        
     return df
 
 def create_model(seed):
