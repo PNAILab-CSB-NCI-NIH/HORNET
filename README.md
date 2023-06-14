@@ -22,7 +22,7 @@ To install the necessary packages, one just need to create a conda environment, 
 - [Linux](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
 - [Mac](https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html)
 
-Create a [conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) using:
+After the installation, create a [conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) using:
 
 ```bash
 conda create -n hornet python=3.7
@@ -150,14 +150,14 @@ Optional arguments:
 - frame-cut: Minimum accepted frame (default is 2000, but this is trajectory dependent)
 - help: Display the usage of the script
 
-Example: to predict the Final_Cohort file and save the output in the prediction_test folder, using the HORNET trained model, where the number of residues is 268, one should use:
+Example: to predict the Final_Cohort file and save the output in the prediction_test folder, using the HORNET trained model, where the number of residues is, for example, 268, one should use:
 
 ```bash
 python predict.py -o prediction_test -d <path-to-file>/Final_Cohort.csv -m models/hornet -n 268
 ```
 
 The output prediction file is saved under the output directory with the name of the dataset plus a prediction suffix, eg., Final_Cohort_prediction.csv.
-IMPORTANT: All datasets within DNN/data have 268 ncl, this is what should be used.
+IMPORTANT: All example datasets built within DNN/data have 268 ncl, so when using those datasets 268 is the number that should be used.
 
 Typical running time in a normal computer ~ 1 min for a dataset with 1M entries.
 
@@ -198,4 +198,4 @@ python train.py -o train_test -d data/train_sample1.csv -n 268 \
                 -v data/train_sample2.csv -vn 268 -e 5 -l huber
 ```
 
-Typical running time in a normal computer is ~ 1 min per epoch for a dataset with 1M entries.
+Typical running time in a normal computer is ~ 2 min per epoch for a dataset with 1M entries.
