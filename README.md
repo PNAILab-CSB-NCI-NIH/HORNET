@@ -14,7 +14,7 @@ See [here](https://github.com/PNAI-CSB-NCI-NIH/HORNET/tree/main/DynamicFitting/R
 
 ## Steps 2-4
 
-For the input preparation and unsupervised and supervised learning analyses, one should proceed with the following installations:
+For the input preparation and unsupervised and supervised learning analyses, one should proceed with the following installations (typical installation time < 30 min):
 
 ### Installation
 
@@ -25,13 +25,13 @@ To install the necessary packages, one just need to create a conda environment, 
 Create a [conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) using:
 
 ```bash
-conda create -n hornet1 python=3.7
+conda create -n hornet python=3.7
 ```
 
 You now can enter the environment by running:
 
 ```bash
-conda activate hornet1
+conda activate hornet
 ```
 
 And install the requirements:
@@ -53,7 +53,7 @@ If you have trouble installing tensorflow, please check the [Tensorflow Document
 
 Remember that the hornet environment should be activated for using the following scripts:
 ```bash
-conda activate hornet1
+conda activate hornet
 ```
 
 #### Step 2 - Input Preparation
@@ -101,6 +101,8 @@ python input_prep.py data 80 120
 
 The output file "Full_Trajectory.csv" will be created within the `<input-directory>`. The Full_Trajectory.csv contains the collection of all calculated structures with topography and energy information.
 
+Typical running time in a normal computer ~ 5 min for a dataset with 20M entries.
+
 #### Step 3 - Unsupervised Learning Cohort Selection
 
 To select top cohort structures using unsupervised learning, one just needs to run the [uml.py](https://github.com/PNAI-CSB-NCI-NIH/HORNET/tree/main/UML/uml.py) script, by using:
@@ -120,6 +122,8 @@ The output files from this script will be, within the data folder:
 - 'Select_Cluster.csv': The second step of the UML analysis (PCA+Clustering)
 - 'Final_Cohort.csv': The third step of the UML analysis (Cohort Selection)
 
+Typical running time in a normal computer ~ 5 min for a dataset with 20M entries.
+
 #### Step 4 - Deep Learning Predictions
 
 The scripts for training models and performing predictions are located at [DNN](https://github.com/PNAI-CSB-NCI-NIH/HORNET/tree/main/DNN) folder. 
@@ -130,7 +134,7 @@ To predict the RMSD (score) of structures, either from a Full_Trajectory, Filter
 
 ```bash
 python predict.py -o <output-directory> -d <dataset> -n <number-of-residues>
-                  [-m <model-location>] [-k <kappa-cut>] [-f <frame-cut>] [-h]
+                  -m <model-location> [-k <kappa-cut>] [-f <frame-cut>] [-h]
 ```
 
 Required arguments:
@@ -138,22 +142,24 @@ Required arguments:
 - output-directory: the directory where the output of the prediction will be stored
 - dataset: the data to be used in predictions, such as 'Full_Trajectory.csv', 'Filtered_Data.csv', 'Select_Cluster.csv' or 'Final_Cohort.csv'
 - number-of-residues: Number of residues of the RNA
+- model-location: location where the trained model is stored
 
 Optional arguments:
 
-- model-location: location where the trained model is stored (default points to HORNET) but you can point to another trained model
 - kappa-cut: Maximum accepted kappa (for HORNET 1.0 it is 50)
 - frame-cut: Minimum accepted frame (default is 2000, but this is trajectory dependent)
 - help: Display the usage of the script
 
-Example: to predict the Final_Cohort file and save the output in the prediction_test folder, where the number of residues is 268, one should use:
+Example: to predict the Final_Cohort file and save the output in the prediction_test folder, using the HORNET trained model, where the number of residues is 268, one should use:
 
 ```bash
-python predict.py -o prediction_test -d <path-to-file>/Final_Cohort.csv -n 268
+python predict.py -o prediction_test -d <path-to-file>/Final_Cohort.csv -m models/hornet -n 268
 ```
 
 The output prediction file is saved under the output directory with the name of the dataset plus a prediction suffix, eg., Final_Cohort_prediction.csv.
 IMPORTANT: All datasets within DNN/data have 268 ncl, this is what should be used.
+
+Typical running time in a normal computer ~ 1 min for a dataset with 1M entries.
 
 ##### Training
 
@@ -191,3 +197,5 @@ Example: to create a model based on the dataset "data/train_sample1.csv" using d
 python train.py -o train_test -d data/train_sample1.csv -n 268 \
                 -v data/train_sample2.csv -vn 268 -e 5 -l huber
 ```
+
+Typical running time in a normal computer is ~ 1 min per epoch for a dataset with 1M entries.
