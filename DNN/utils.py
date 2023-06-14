@@ -103,8 +103,8 @@ def clean_data(df,frame_cut,kappa_cut):
 def normalize(df,n_residues):
     """
         Returns a normalized DataFrame. This step is necessary since each RNA
-        will yield different values of energies depending on its size, radius of
-        gyration and other characteristics.
+        will yield different values of energies depending on its size and other
+        characteristics.
         Parameters
         ----------
         df : DataFrame
@@ -215,7 +215,7 @@ def retrieve_mean_and_sigma(model_location):
     mean = json.loads(mean_text)
     sigma = json.loads(sigma_text)
 
-    # Clear
+    # Clean
     fmean.close()
     fsigma.close()
 
