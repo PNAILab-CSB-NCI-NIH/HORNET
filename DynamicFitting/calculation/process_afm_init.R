@@ -39,7 +39,7 @@ df.new$V2 = df.new$V2 - min(df.new$V2) + 5
 
 ## set z values less than 1A to zero
 V3.sparse = df.new$V3*10
-V3.sparse[V3.sparse < 9.0] = 0.000
+V3.sparse[V3.sparse < 1.0] = 0.000
 
 df.new$V1 = format(df.new$V1, digits = 1, nsmall = 1)
 df.new$V2 = format(df.new$V2, digits = 1, nsmall = 1)

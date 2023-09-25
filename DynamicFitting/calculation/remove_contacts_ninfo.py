@@ -223,6 +223,7 @@ def get_restraints(res_file, ninfo_file, pdb_name):
     #print(res_i, res_i2, res_j, res_j2) 
     return [res_i, res_j, res_i2, res_j2, chain_i, chain_j, dist, weight, type_i, type_j]
 
+
 def get_atomName(pdb_name):
     """ Return a list of atom names in a pdb file """
     pdb_file = open(pdb_name, 'r')
@@ -234,7 +235,6 @@ def get_atomName(pdb_name):
             atoms.append(n)
     return atoms
     
-
 
 def get_totalContact(ninfo_file):
     """Count the number of lines in ninfo file starting with term 'contact' """
@@ -300,13 +300,7 @@ if __name__ == '__main__':
     #print(chains, resids)
     scale_Coef(input_file, out_file, chains_in, resids, pdb_name)
     
-
   else:
     print("provide correct number of arguments, see usage")
     usage()
     sys.exit()
-
-
-
-
-

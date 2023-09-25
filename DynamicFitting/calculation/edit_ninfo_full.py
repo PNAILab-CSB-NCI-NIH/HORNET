@@ -19,6 +19,7 @@ def usage():
   print("        restraint_file  file containing list of tertiary restraints, eg. at scripts_path/calculation/restraints_monomer.txt")
   print("        cg_pdbfile      coarse grained PDB file")
 
+
 def scale_Coef(input_file, out_file, scale_factors, contact_info):
   [bd_factor, ba_factor, dih_factor1, dih_factor2,long_factor, bp_factor, bs_factor] = map(float, scale_factors.strip('[]').split(','))
   total_contact = get_totalContact(input_file) ## Total number of tertiary contacts in ninfo file
@@ -107,6 +108,7 @@ def scale_Coef(input_file, out_file, scale_factors, contact_info):
         else:
             fout.write(line)
   return
+
 
 def get_restraints(res_file, ninfo_file, pdb_name):
     """
@@ -248,6 +250,7 @@ def get_restraints(res_file, ninfo_file, pdb_name):
     #print(res_i, res_i2, res_j, res_j2) 
     return [res_i, res_j, res_i2, res_j2, chain_i, chain_j, dist, weight, type_i, type_j]
 
+
 def get_atomName(pdb_name):
     """ Return a list of atom names in a pdb file """
     pdb_file = open(pdb_name, 'r')
@@ -258,7 +261,6 @@ def get_atomName(pdb_name):
             # extract n (atom name)
             atoms.append(n)
     return atoms
-    
 
 
 def get_totalContact(ninfo_file):
@@ -275,8 +277,8 @@ def get_totalContact(ninfo_file):
 
 def map_resid2name(pdb_name):
     """
-read xyz from pdb
-generate a resid to resname dictionary
+    read xyz from pdb
+    generate a resid to resname dictionary
     """
     xyz = []
     pdb_file = open(pdb_name, 'r')
@@ -332,8 +334,3 @@ if __name__ == '__main__':
     print("provide correct number of arguments, see usage")
     usage()
     sys.exit()
-
-
-
-
-

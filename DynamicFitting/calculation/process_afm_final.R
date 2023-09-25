@@ -16,9 +16,8 @@ if (length(args) != 2) {
 library(dplyr)
 
 afm.file = args[1]
-padded_cmpt1_1A_rot_init.txt"
-d = read.table(afm.file, 
-               sep="", 
+# afm.file = "padded_cmpt1_1A_rot_init.txt"
+d = read.table(afm.file, sep=" ", 
                fill=FALSE, 
                strip.white=TRUE)
 # head(d)
@@ -26,7 +25,7 @@ d = read.table(afm.file,
 d$id = rep("AFM_IMAGE", nrow(d))
 #move last column to first
 df.new <- d %>%   select(id, everything())
-df.new$V3[df.new$V3 < 9.0] = 0.000
+df.new$V3[df.new$V3 < 1.0] = 0.000
 
 df.new$V1 = format(df.new$V1, digits = 1, nsmall = 1)
 df.new$V2 = format(df.new$V2, digits = 1, nsmall = 1)

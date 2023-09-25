@@ -1,8 +1,10 @@
 #!/usr/bin/env pyXplor
 
+xplor.requireVersion("3.5")
+
 import protocol
 opts,args=xplor.parseArguments([
-    ("allAtomInitFile","filename",
+   ("allAtomInitFile","filename",
      """file with initial atomic coordinates. Execution is fastest if
      this is created using Xplor-NIH and contains coordinates for all 
      atoms and covalent geometry is correct."""),
@@ -10,83 +12,68 @@ opts,args=xplor.parseArguments([
     PDB-formatted files with coarse-grained bead coordinates, or can be the 
     name of a file contain one bead filename per line."""),
     ("bplFile","filename","""name of .bpl file containing the base-pairing 
-    information""")])
+    information""")],
+           usageString="xplor toAllAtom.py [options] <bead file names>")
 
 inputPDB=None
-beadFilename=None
 bplFilename=None
 for opt in opts:
     if opt[0]=="allAtomInitFile": inputPDB=opt[1]
-    if opt[0]=="beadFile": beadFilename=opt[1]
     if opt[0]=="bplFile": bplFilename=opt[1]
     pass
 
+beadFilenames=args
+
 import os
-if not (inputPDB and os.path.exists(inputPDB)):
-    print("The -allAtomInitFile option must be specified with an existing "
-          "file as the argument.")
-    exit(1)
-    pass
-if not beadFilename:
-    print("The -beadFile option must be specified.")
+if not beadFilenames:
+    print("Must specify one or more bead filenames")
     exit(1)
     pass
 if not (bplFilename and os.path.exists(bplFilename)):
     print("The -bplFile option must be specified.")
     exit(1)
     pass
-
-from pdbTool import PDBTool
-if ":" in beadFilename:
-    beadFilenames=beadFilename.split(':')
-else:
-    if not os.path.exists(beadFilename):
-        print(f"-beadFile {beadFilename} does not exist")
-        exit(1)
-        pass
-
-    if PDBTool(beadFilename).format()=="PDB":
-        beadFilenames = [beadFilename ]
-    else:
-        beadFilenames=[]
-        for name in open(beadFilename).readlines():
-            name=name.strip()
-            if name[0] == '#':
-                continue
-            pass
-        beadFilenames.append( name )
-        pass
+if inputPDB and not os.path.exists(inputPDB):
+    print(f"File {inputPDB} does not exist.")
+    exit(1)
     pass
 
-for name in beadFilenames:
-    if not os.path.exists(name):
-        print(f"file {name} listed in {beadFilename} does not exist.")
-        exit(1)
+
+if inputPDB:
+                                  # an input all-atom RNA is read
+    protocol.loadPDB(inputPDB)
+
+    import regularize
+    regularize.addUnknownAtoms_new()   # any missing atom coordinates added
+
+    from regularize import fixupCovalentGeom
+    fixupCovalentGeom()                # coordinates modified such that
+                                      # there are no bond, angle or improper
+                                      #violations
+else:  #generate all-atom PDB from sequence
+    protocol.initTopology("nucleic")
+    import psfGen
+    seqs = psfGen.pdbToSeq(open(beadFilenames[0]).read()).seqs
+    for startResid,segid,seq,seqType in seqs:
+        from selectTools import renameResidues
+        seq=renameResidues(" ".join([res[2] for res in seq]),"nucleic")
+        psfGen.seqToPSF(seq,
+                        seqType='rna',
+                        startResid=startResid,segName=segid)
         pass
-    if PDBTool(name).format()!="PDB":
-        print(f"file {name} listed in {beadFilename} is not in PDB format.")
-        exit(1)
-        pass
+    protocol.genExtendedStructure()
     pass
-
-    
-protocol.loadPDB(inputPDB)
-
-import regularize
-regularize.addUnknownAtoms_new()
-
-#protocol.writePDB("allAtom.pdb")
 
 #
 from potList import PotList
 potList = PotList()
-crossTerms=PotList('cross terms')
 startStructure = 0
 #
-# Lists highTempParams and rampedParams will hold simulationTools.StaticRamp and
-# simulationTools.MultRamp objects to handle parameter changes between the high
-# termperature and annealing stage, and within the annealing stage (e.g., ramped
-# force constants).
+# Lists highTempParams and rampedParams will hold
+# simulationTools.StaticRamp and simulationTools.MultRamp objects to
+# handle parameter changes between the high termperature and annealing
+# stage, and within the annealing stage (e.g., ramped force
+# constants).
 #
 from simulationTools import StaticRamp, MultRamp, InitialParams, AnnealIVM
 
@@ -94,8 +81,10 @@ highTempParams = []
 rampedParams = []
 
 
+#In this energy term, a coarse-grained version of the all-atom coordinates
+# is generated. The energy is based on the difference between the two
+# coarse-graned representations.
 from globDiffPotTools import create_GlobDiffPot
-#
 globDiff = create_GlobDiffPot('globDiffA',
                               selection="all",
                               useChainID=True,
@@ -109,25 +98,19 @@ globDiff = create_GlobDiffPot('globDiffA',
                                        ])
 
 globDiff.setThreshold(0.5)
-globDiff.setUpperBound(0.1)
+globDiff.setUpperBound(0.1) #zero energy for coarse-grained RMSDs < 0.1 Angstrom
 globDiff.setScale(3)
 potList.append( globDiff )
 
 
-from regularize import fixupCovalentGeom
-#assumed to be good covalent geom
-#fixupCovalentGeom()
-#if xplor.p_processID==0:
-#    protocol.writePDB("start.pdb")
-#    pass                              
-
+#this term measures the differnet between input all-atom structure
+# and the version written out (which matches the coarse-grained version
 from posDiffPotTools import create_PosDiffPot
 refRMSD = create_PosDiffPot("refRMSD","not name H*",
                             pdbFile=inputPDB,
                             cmpSel="not name H*")
 refRMSD.setUpperBound(2)
 refRMSD.setScale(10)
-crossTerms.append(refRMSD)
 
 #
 # Set up distance restraint potential (e.g., from NOEs).
@@ -179,6 +162,7 @@ def genRestraints(pairs,
     return ret
 
 
+#Distance restraints based on base-pairing (read from the input .bpl file)
 basePairResids = readDuplexes(bplFilename)
 
 restraints = genRestraints(basePairResids)
@@ -275,21 +259,6 @@ potList.append(impr)
 rampedParams.append(MultRamp(0.1, 1.0, "potList['IMPR'].setScale(VALUE)"))
 
 
-#
-# Set up statistical base-base positional potential.
-
-# In general, however, all RNA residues should be selected (e.g.,
-# for an isolated RNA molecule use selection='all').
-# Reference: Clore, GM & Kuszewski, J, (2003) J. Am. Chem. Soc. 125:1518-1525.
-#
-#FIX: add pairs?
-#protocol.initOrie(system='rna', selection='all',
-#                  distCutoff=15 #  will speed things up considerably - supported
-#                  #               in Xplor-NIH versions 3.2.2 and up.
-#                  )
-#
-#potList.append(XplorPot('ORIE'))
-#rampedParams.append(MultRamp(0.002,0.3,"xplor.command('orie scale VALUE end')"))
 
 xplor.fastCommand("param hbonds print=false end end")
 potList.append(XplorPot('HBON'))
@@ -306,27 +275,10 @@ potList['HBON'].setScale(1.0)
 protocol.massSetup()
 
 
-#
-# Set up IVM object(s).
-#
 
-# IVM object for torsion-angle dynamics/minimization.
+## IVM object for Cartesian minimization.
 import ivm
-dyn = ivm.IVM()
-
-
-# Argument flexRiboseRing below is a string that selects residues whose ribose
-# rings will have all endocyclic angles flexible.  In general, all ribose rings
-# should be selected.  In this example, the non-RNA ligand (residue 34) has to
-# be excluded.
-protocol.torsionTopology(dyn, flexRiboseRing='all')
-
-## Optional IVM object for final Cartesian minimization.
 minc = ivm.IVM()
-##
-##for tensor in tensors.values():
-##    tensor.setFreedom("varyDa, varyRh") # allow all tensor parameters float here
-##
 protocol.cartesianTopology(minc)
 
 
@@ -337,8 +289,6 @@ protocol.cartesianTopology(minc)
 temp_ini = 1500.0   # initial temperature
 temp_fin = 25.0     # final temperature
 
-
-potListWoutOrie=[term for term in potList if term.instanceName()!='ORIE']
 
 def calcOneStructure(loopInfo):
     """ this function calculates a single structure, performs analysis on the
@@ -351,6 +301,7 @@ def calcOneStructure(loopInfo):
     name,ext = os.path.splitext(basename)
     loopInfo.pdbTemplate=name+"_aa.pdb" #name for output PDB.
 
+    # load the coarse-grained coordinates into the globDiff energy term
     from atomSel import AtomSel
     protocol.initCoords(beadFilename,
                         erase=True,
@@ -366,6 +317,9 @@ def calcOneStructure(loopInfo):
     #   differfrom initial values in rampedParams
     InitialParams( highTempParams )
 
+    # run successive gradient minimizations increasing the number of energy
+    # terms, so that the minimizer is less likely to get stuck in a local
+    # minimuze
     protocol.initMinimize(minc,
                           potList=[globDiff,bond,angl,impr],
                           numSteps=1000,   
@@ -395,25 +349,6 @@ def calcOneStructure(loopInfo):
     minc.run()
 
 
-#
-#
-#    # high temp dynamics
-#    #
-#    protocol.initDynamics(dyn,
-#                          potList=potList, # potential terms to use
-#                          bathTemp=temp_ini,
-#                          initVelocities=1,
-#                          finalTime=5,    # stops at 150ps or 15000 steps
-#                          numSteps=3000,   # whichever comes first
-#                          printInterval=100)
-#
-#    dyn.setETolerance( temp_ini/100 )  #used to det. stepsize. default: t/1000 
-#    dyn.run()
-#
-#    # initialize parameters for cooling loop
-#    InitialParams( rampedParams )
-#
-#
     # initialize integrator for simulated annealing
     #
     protocol.initMinimize(minc,
@@ -428,14 +363,6 @@ def calcOneStructure(loopInfo):
               tempStep=200,
               ivm=minc,
               rampedParams=rampedParams).run()
-#              
-#    # final torsion angle minimization
-#    #
-#    protocol.initMinimize(dyn,
-#                          printInterval=50)
-#    dyn.run()
-#
-#    # final all- atom minimization
     #
     protocol.initMinimize(minc,
                           potList=potList,
@@ -453,11 +380,8 @@ StructureLoop(numStructures=len(beadFilenames),
               structLoopAction=calcOneStructure,
               genViolationStats=False,
               averagePotList=potList,
-#              averageSortPots=[potList['BOND'],potList['ANGL'],potList['IMPR'],
-#                               noe,rdcs,potList['CDIH']],
-              averageCrossTerms=crossTerms,
+              averageCrossTerms=refRMSD,
               averageContext=FinalParams(rampedParams),
-              #averageFilename="SCRIPT_ave.pdb",    #generate regularized ave structure
               averageFitSel="name P",
               averageCompSel="not PSEUDO and not name H*"     ).run()
 

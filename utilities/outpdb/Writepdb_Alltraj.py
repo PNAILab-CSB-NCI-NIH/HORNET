@@ -12,29 +12,28 @@ import sys
 import numpy as np
 import pandas as pd
 os.system('pwd')
-sns.set(font_scale=1)
 
-path_traj = '{dir_path}/UML/data/'   #### Path to Full_Trajectory file
-dcd_traj = '{path_folder with all dcd files named as k*.dcd}'      #####path to dcd files with name k*.dcd where * is the respected used kappa value for dynamic fitting
-ref = '{path}/file_name.pdb'   #### reference topology structure in CG model
+path_traj = './'                # Path to file with frame number to be written out 
+file_name = 'Top10.csv'         # Path to Top10, Cohort file or other where we want to write the pdbs
+dcd_traj  = './'                # Path to dcd files with name k*.dcd where * is the respected used kappa value for dynamic fitting
+ref       = './ref_model.pdb'   # Reference topology structure in CG model
 
-fn = f'{path_traj}/Full_Trajectory.csv'
+fn = f'{path_traj}/{file_name}'
 df1 = pd.read_csv(fn, sep=',')
-##print (df1.shape)
-#############Write output CG-Model for aa-Conv
-kappas =df1['kapa'].unique() 
-##print(max(kappas))
+
+# Write output CG-Model for aa-Conv
+kappas = df1['kapa'].unique()
+
 for i in kappas:
-     file = f'{dcd_traj}/k{i}.dcd'    ##locating dcd file for k = i
-     traj = md.load_dcd(file, top=ref)
-     #print (traj)
-     ka=i
-     FRAME = df1[df1['kapa'] == i]['frame']
-     if len(FRAME) > 0:
-         print (file)
-         for z in range (0,len(FRAME),1000):  #Write pdb every 1000 frames
-             #print (FRAME.iat[z])
-             Targ = FRAME.iat[z]
-             if Targ > 0:
-               P = Targ - 1 
-               traj[(P)].save("Modelk%sFrame_%s.pdb"%(ka,Targ))
+    i = int(i)
+    # Locating dcd file for k = i
+    file = f'{dcd_traj}/k{i}.dcd'
+    traj = md.load_dcd(file, top=ref)
+    FRAME = df1[df1['kapa'] == i]['frame']
+    if len(FRAME) > 0:
+        # Write pdb every 1 frames (could be optimized as needed) 
+        for z in range (0, len(FRAME), 1):
+            Targ = int(FRAME.iat[z])
+            if Targ > 0:
+                P = Targ - 1
+                traj[(P)].save("Modelk%sFrame_%s.pdb"%(i,Targ))
