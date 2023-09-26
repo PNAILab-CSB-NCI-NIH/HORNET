@@ -29,8 +29,8 @@ if [[ $# -eq 0 ]] ; then
 fi
 
 
-module load R/4.0
-module load python/3.5
+#module load R/4.0
+#module load python/3.5
 afm_file=$1
 pdb_file=$2
 ninfo_file=$3

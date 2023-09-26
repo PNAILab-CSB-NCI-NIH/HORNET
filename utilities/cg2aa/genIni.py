@@ -1,5 +1,5 @@
 
-#read starting PDB, add unknown atoms, and fix up covalent geom, write out
+# read starting PDB, add unknown atoms, and fix up covalent geom, write out
 # resulting PDB
 
 inputPDB="rna_ini-allatom.pdb"

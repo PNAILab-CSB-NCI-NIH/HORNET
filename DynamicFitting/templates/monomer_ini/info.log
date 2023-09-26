@@ -1,0 +1,5 @@
+2023-08-16 14:15:04 cn4334 INFO [mpi] global myrank = 0
+2023-08-16 14:15:04 cn4334 INFO [mpi] total nprocs = 1
+2023-08-16 14:15:04 cn4334 INFO [omp] nthreads = 2
+2023-08-16 14:15:04 cn4334 INFO ncores = 2
+2023-08-16 14:15:04 cn4334 INFO i_run_mode = 2

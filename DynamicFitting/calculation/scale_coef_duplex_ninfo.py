@@ -166,6 +166,7 @@ def readDuplexes(filename):
     #ret.append(pairs)
     return sum(pairs, [])
 
+
 def getSequence(filename):
     """Return the sequence of residues from the base pair input file.
     """
@@ -189,6 +190,7 @@ def getSequence(filename):
     #print(sum(seq, []))
     return sum(seq, [])
 
+
 def get_atomName(pdb_name):
     """ Return a list of atom names in a pdb file """
     pdb_file = open(pdb_name, 'r')
@@ -199,6 +201,7 @@ def get_atomName(pdb_name):
             # extract n (atom name)
             atoms.append(n)
     return atoms
+
 
 def getDuplex(basepair_file, pdb_name):
     """ Get duplex and non duplex particle resids"""
@@ -236,6 +239,7 @@ def getDuplex(basepair_file, pdb_name):
     #print([sum(particle_resduplex, []), sum(particle_resnonduplex, [])])
     return [sum(particle_resduplex, []), sum(particle_resnonduplex, [])]
  
+
 if __name__ == '__main__':  
   if len( sys.argv ) == 6:
     factors_dup = sys.argv[1]
@@ -249,6 +253,3 @@ if __name__ == '__main__':
     print("provide correct number of arguments")
     usage() 
     sys.exit(1)
-
-
-

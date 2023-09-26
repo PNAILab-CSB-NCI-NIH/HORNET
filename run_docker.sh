@@ -1,0 +1,1 @@
+docker run --rm -it ghcr.io/hdegen/hornet

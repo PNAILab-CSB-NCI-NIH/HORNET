@@ -2,28 +2,22 @@
 **                                                                     **
 **                       Input file of CafeMol                         **
 **                                                                     **
-**      This file is for CG conversion of the all atom                 **
+**      This file is for CG conversion of the all atom cobalamin RNA   **
 **      constant temperature MD simulation                             **
 *************************************************************************
 
-
-**** Set paths, input and output filenames, and output data formats
 <<<< filenames
 ** Directory where output data are saved
 path = ./output
-** Output file names up to the suffix
-filename = out_name
+** Basename for output files
+filename = cbl_dimer
 ** Types of output files
-OUTPUT pdb psf dcd rst
-** Directory where the parameter files are prepared
-path_para = {cafemol_path}/para
-** Directory where the native (reference) structures are prepared
+OUTPUT psf rst pdb movie dcd ninfo
 path_pdb = ./pdb
-** Directory where the initial structures are prepared
-path_ini = ./pdb
-** Directory where the native (reference) information are prepared
+path_ini =./pdb
 path_natinfo = ./ninfo
->>>>
+path_para= {cafemol_software_path}/para
+>>>> 
 
 <<<< job_cntl  
 i_run_mode = 2 #constant temp simulation
@@ -35,7 +29,7 @@ i_initial_state = 2 #Native configuration
 <<<< unit_and_state
 i_seq_read_style = 1 #from PDB files
 i_go_native_read_style = 1 #from PDB file
-1-2    rna                      {FILE_NAME}.pdb
+1-2    rna                      tail-tail-angled1.pdb
 >>>>
 
 <<<< energy_function       
@@ -56,7 +50,7 @@ i_diele = 0
 
 <<<< md_information
 n_step_sim = 1
-n_tstep(1) = 500
+n_tstep(1) = 10
 tstep_size = 0.1
 n_step_save = 100
 n_step_neighbor = 10
