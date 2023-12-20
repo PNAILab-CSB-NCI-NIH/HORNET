@@ -5,7 +5,9 @@ HORNET: Holistic RNA Structure Determination by Unsupervised Learning and Deep N
 
 ## I. Requirements
 
-1. Working installation of conda:
+The software has been designed to be preferably operated on macOS and Linux operating systems. The requirements to run the software are:
+
+1. Working installation of conda (miniconda or anaconda):
 - [Linux](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
 - [Mac](https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html)
 
@@ -17,6 +19,8 @@ See [here](DynamicFitting/README.md) for detailed explanations for how to perfor
 
 
 ## II. Installation of HORNET
+
+After installing conda, please open a terminal and follow these steps to install the environment and package:
 
 1. Create a “hornet” [conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) using:
 
@@ -36,30 +40,24 @@ conda activate hornet
 pip install hornet@git+https://github.com/PNAI-CSB-NCI-NIH/HORNET.git
 ```
 
-Alternatively, enter in the root directory of your cloned version of the hornet repository and install using:
-
-```bash
-pip install -e .
-```
-
 Note: HORNET installation should have included Tensorflow. If you encounter problems at this step, please check [Tensorflow's](https://www.tensorflow.org/install/pip#linux) documentation for help. The version used is 2.13. TensorFlow-related warnings may occur when running HORNET, but can often be ignored.
 
 ### Alternative with docker
 Some of the latest versions of Mac may present issues when running tensorflow, even if there are no issues during the installation. A possible solution is described [here](https://developer.apple.com/metal/tensorflow-plugin/).
 
-If you do not manage to install the package on your macOS, we included a docker image of the repository [here](https://github.com/users/hdegen/packages/container/package/hornet). To use the dockerized version you will need to download and install [docker](https://www.docker.com). After the installation, you can copy the image by running:
+If you do not manage to install the package on your macOS, we included a docker image of the repository [here](https://github.com/users/hdegen/packages/container/package/hornet). To use the dockerized version you will need to download and install [docker](https://www.docker.com). Docker may need to use considerable resources from your computer, so we would advice to close other applications. After the installation, you can copy the image by running:
 
 ```bash
 docker pull ghcr.io/hdegen/hornet:latest
 ```
 
-This docker image includes the environment and scripts for running all the steps described below and it is only built if it passes all the unit tests, as directed in the Dockerfile. To start the container then, simply use:
+This docker image includes the environment and scripts for running all the steps described below and it is only built if it passes all the unit tests, as directed in the Dockerfile. To start the container, simply use:
 
 ```bash
 docker run --rm -it ghcr.io/hdegen/hornet
 ```
 
-After running this command you should receive a bash shell inside the container and shoud be located inside the HORNET repository on the conttainer, where you will have access to all scripts and can follow the next steps for running HORNET.
+After running this command you should receive a bash shell inside the container and shoud be located inside the HORNET repository on the container, where you will have access to all scripts and can follow the next steps for running HORNET.
 
 You can also build your own image of hornet by just running in the root directory of this repository (same place where the Dockerfile is located):
 
@@ -78,11 +76,35 @@ docker run --rm -it hornet
 
 ## III. Steps for running HORNET
 
+For running HORNET, if the user is not using the docker image they will need to download and unzip this repository in their own computer. If you are using docker, you can skip the next session "Downloading the repository" and go directly to the next one: "Pipeline Steps".
+
+### Downloading the repository
+
+For this initial step, on the top of the webpage there is a green button called "<> code". Press it and select "Download ZIP" on the options displayed. If the user is already used to git repositories, just clone using the git clone command. After donwloading the repository, please locate the downloaded file and unzip it. You can unzip it using the interface or you can also use terminal commands. For terminal commands, open your terminal and go to the directory where you downloaded the file, usually "~/Downloads":
+
+```bash
+cd ~/Downloads
+```
+
+And unzip the file:
+```bash
+unzip HORNET-main.zip
+```
+
+Finally, go to the HORNET unzipped folder:
+```bash
+cd HORNET-main
+```
+
+### Pipeline Steps
+
+With the repository downloaded and accessible locally, the steps for running the application are as follows:
+
 1. Input Preparation (Pre-processing data step)
 2. Unsupervised Machine Learning (UML) Cohort Selection
-3. Supervised Neural Network RMSD Prediction
+3. Supervised Neural Network RMSD Estimation
 
-All Python executable scripts can be found in [scripts](scripts) folder.
+All Python executable scripts can be found in the [scripts](scripts) folder, inside the repository.
 
 
 ### Step 1 - Input Preparation
@@ -97,9 +119,9 @@ Copy the CafeMol output file (.ts) for each run (kappa value) into a project dir
 
 Copy or rename each .ts file as a .txt file with the “en_all” prefix, followed by the kappa value associated with that file (e.g., en_allk14.txt for kappa=14). The kappa values used for AFM in the calculation are embedded in the name of the file and they will be extracted when loading the files.
 
-Example:
+As an example, if you had your calculation files inside of a given folder <Dynamic-Fitting-Output>, separated by different kappa values as subfolders, you would use:
 ```bash
-cp <Dynamic-Fitting-Output>/<kappa>/<file-name.ts> <en_allk<kappa>.txt
+cp <Dynamic-Fitting-Output>/<kappa>/<file-name.ts> en_allk<kappa>.txt
 ```
 
 Note: Example .ts and .txt files associated with the TUTORIAL data are provided in [TUTORIAL](data/TUTORIAL): output_k14.ts, output_k22.ts, en_allk14.txt, and en_allk22.txt.
@@ -223,7 +245,7 @@ And the following lines of script must be modified accordingly:
 - dcd_traj: Path to the folder containing all associated CafeMol binary files (.dcd), named as k*.dcd, where * is the kappa value (trajectory) associated with the selected frames. 
 - ref: Reference coarse-grained PDB structure (e.g., initial PDB file used for dynamic fitting)
 
-A modified example script with associated input files can be found in the [outpdb](utilities/outpdb/) directory, and the required .dcd file can be obtained [here](https://home.ccr.cancer.gov/csb/pnai/data/HorNet/tutorial/k30.dcd). With all required files in the directory, the script can be run as follows:
+A modified example script with associated input files can be found in the [outpdb](utilities/outpdb/) directory, and the required .dcd file can be obtained [here](https://home.ccr.cancer.gov/csb/pnai/data/HorNet/tutorial/k30.dcd). Please, remember to download the dcd file and copy it to your current directory where the script Writepdb_Alltraj.py is located. With all required files placed in the same directory, the script can be run as follows:
 
 ```bash
 python Writepdb_Alltraj.py
