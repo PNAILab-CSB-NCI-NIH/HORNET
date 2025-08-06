@@ -40,7 +40,7 @@ conda activate hornet
 pip install hornet@git+https://github.com/PNAI-CSB-NCI-NIH/HORNET.git
 ```
 
-Note: HORNET installation should have included Tensorflow. If you encounter problems at this step, please check [Tensorflow's](https://www.tensorflow.org/install/pip#linux) documentation for help. The version used is 2.13. TensorFlow-related warnings may occur when running HORNET, but can often be ignored.
+Note: HORNET installation should have included Tensorflow via requirements. If you encounter problems at this step, please check [Tensorflow's](https://www.tensorflow.org/install/pip#linux) documentation for help. The version used is 2.13. TensorFlow-related warnings may occur when running HORNET, but can often be ignored.
 
 ### Alternative with docker
 Some of the latest versions of Mac may present issues when running tensorflow, even if there are no issues during the installation. A possible solution is described [here](https://developer.apple.com/metal/tensorflow-plugin/).
