@@ -314,3 +314,29 @@ python train.py -o train_test_val \
 ```
 
 The typical running time on a normal computer is ~1 min per epoch for a dataset with ~1 million entries.
+
+## Citing HORNET
+If HORNET helped your research, please cite:
+
+```bibtex
+@article{HORNETnature2025,
+  author       = {Degenhardt, M. F. S. and Degenhardt, H. F. and and et al.},
+  title        = {Determining structures of RNA conformers using AFM and deep neural networks},
+  journal      = {Nature},
+  volume       = {637},
+  pages        = {1234--1243},
+  year         = {2025},
+  doi          = {10.1038/s41586-024-07559-x},
+  url          = {https://doi.org/10.1038/s41586-024-07559-x}
+}
+```
+```bibtex
+@software{HORNETzenodo2024,
+  author       = {Degenhardt, M. F. S. and Degenhardt, H. F. and and et al.},
+  title        = {HORNET code - Holistic RNA Structure Determination},
+  version      = {1.0.0},
+  year         = {2024},
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.10637777},
+  url          = {https://doi.org/10.5281/zenodo.10637777}
+```
